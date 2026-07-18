@@ -17,9 +17,9 @@ export function ProfilePage() {
     : 1;
 
   return (
-    <div className="page-section container space-y-6">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
       <Card className="flex flex-col gap-6 p-8 md:flex-row md:items-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-500/20 text-2xl font-semibold text-indigo-200">
+        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-indigo-500/20 text-3xl font-semibold text-indigo-200">
           {user?.name?.charAt(0).toUpperCase()}
         </div>
         <div>
@@ -38,8 +38,33 @@ export function ProfilePage() {
       </Card>
 
       {isLoading ? (
-        <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-indigo-400" />
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={index}
+                className="animate-pulse rounded-3xl border border-slate-800/80 bg-slate-900/60 p-5"
+              >
+                <div className="h-8 w-16 rounded bg-slate-800" />
+                <div className="mt-3 h-3 w-24 rounded bg-slate-800/70" />
+              </div>
+            ))}
+          </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {Array.from({ length: 2 }).map((_, index) => (
+              <div
+                key={index}
+                className="animate-pulse rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6"
+              >
+                <div className="h-5 w-32 rounded bg-slate-800" />
+                <div className="mt-4 space-y-3">
+                  <div className="h-3 w-full rounded bg-slate-800/70" />
+                  <div className="h-3 w-5/6 rounded bg-slate-800/70" />
+                  <div className="h-3 w-4/6 rounded bg-slate-800/70" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : error ? (
         <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">

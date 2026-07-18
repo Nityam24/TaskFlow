@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { toast } from "react-toastify";
 import type { ApiResponse } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
@@ -29,8 +30,13 @@ apiClient.interceptors.response.use(
         window.location.href = "/login";
       }
     }
+
+    if (error.response?.status === 500) {
+      toast.error("Something went wrong. Try again!");
+    }
+
     return Promise.reject(error);
-  }
+  },
 );
 
 export const getErrorMessage = (error: unknown): string => {

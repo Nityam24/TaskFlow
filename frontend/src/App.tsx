@@ -2,7 +2,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { store } from "./store/store";
-import { PrivateRoute, PublicRoute } from "./components/PrivateRoute";
+import {
+  NotFoundRoute,
+  PrivateRoute,
+  PublicRoute,
+} from "./components/PrivateRoute";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -35,6 +39,8 @@ function AppLayout() {
           <Route path="/tasks" element={<TasksPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>
+
+        <Route path="*" element={<NotFoundRoute />} />
       </Routes>
     </AppShell>
   );

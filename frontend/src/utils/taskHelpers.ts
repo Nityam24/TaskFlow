@@ -32,16 +32,42 @@ export function formatDate(date?: string): string {
 
 export function formatDateTime(date?: string): string {
   if (!date) return "—";
-  return new Date(date).toLocaleString("en-US", {
+  return new Date(date).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
   });
 }
 
-export function isOverdue(dueDate?: string, status?: TaskStatus): boolean {
+function parseDateOnly(value?: string): Date | null {
+  if (!value) return null;
+
+  const trimmedValue = value.trim();
+  const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmedValue);
+
+  if (dateOnlyMatch) {
+    const [, year, month, day] = dateOnlyMatch;
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  }
+
+  const parsed = new Date(trimmedValue);
+  if (Number.isNaN(parsed.getTime())) return null;
+
+  return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+}
+
+export function isOverdue(
+  dueDate?: string,
+  status?: TaskStatus,
+  _startDate?: string,
+): boolean {
   if (!dueDate || status === TaskStatus.COMPLETED) return false;
-  return new Date(dueDate) < new Date();
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const due = parseDateOnly(dueDate);
+  if (!due) return false;
+
+  return due < today;
 }

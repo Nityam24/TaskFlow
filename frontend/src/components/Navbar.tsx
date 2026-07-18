@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { clearCredentials } from "../store";
 import { authApi } from "../api";
-import "./Navbar.css";
+import "../styles/components/Navbar.css";
 
 export function Navbar() {
   const location = useLocation();

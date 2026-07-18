@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import type { Task, CreateTaskInput } from "../types";
 import {
   getStatusBadgeClass,
@@ -9,6 +10,7 @@ import {
 import { TaskForm } from "./TaskForm";
 import { useUpdateTask, useDeleteTask } from "../hooks/useTasks";
 import { getErrorMessage } from "../api/client";
+import { Button } from "./ui/Button";
 
 interface TaskModalProps {
   task: Task | null;
@@ -16,112 +18,194 @@ interface TaskModalProps {
   mode?: "view" | "edit";
 }
 
-export function TaskModal({ task, onClose, mode: initialMode = "view" }: TaskModalProps) {
+export function TaskModal({
+  task,
+  onClose,
+  mode: initialMode = "view",
+}: TaskModalProps) {
   const [mode, setMode] = useState<"view" | "edit">(initialMode);
-  const [error, setError] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
 
   if (!task) return null;
 
   const handleUpdate = async (data: CreateTaskInput) => {
-    setError("");
     try {
       await updateTask.mutateAsync({ id: task._id, data });
+      toast.success("Task updated successfully");
       setMode("view");
     } catch (err) {
-      setError(getErrorMessage(err));
+      const message = getErrorMessage(err);
+      toast.error(message);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this task?")) return;
     try {
       await deleteTask.mutateAsync(task._id);
+      toast.success("Task deleted successfully");
       onClose();
     } catch (err) {
-      setError(getErrorMessage(err));
+      const message = getErrorMessage(err);
+      toast.error(message);
+    } finally {
+      setShowDeleteConfirm(false);
     }
   };
 
-  const overdue = isOverdue(task.dueDate, task.status);
+  const overdue = isOverdue(task.dueDate, task.status, task.startDate);
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal slide-up" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>{mode === "edit" ? "Edit Task" : task.title}</h2>
-          <button className="btn btn-ghost" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 px-4 py-6 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-slate-800 bg-slate-900/95 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {updateTask.isPending || deleteTask.isPending ? (
+          <div className="absolute inset-0 z-20 flex items-center justify-center rounded-3xl bg-slate-950/70 backdrop-blur-sm">
+            <div className="flex items-center gap-3 rounded-full border border-slate-800 bg-slate-900/80 px-4 py-2 text-sm text-slate-300">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-700 border-t-indigo-400" />
+              Working on task...
+            </div>
+          </div>
+        ) : null}
+        <div className="flex items-start justify-between border-b border-slate-800 px-6 py-5">
+          <div>
+            <p className="text-sm font-medium uppercase tracking-[0.24em] text-indigo-300">
+              Task details
+            </p>
+            <h2 className="mt-1 text-xl font-semibold text-white">
+              {mode === "edit" ? "Edit task" : task.title}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+          >
             ✕
           </button>
         </div>
 
-        <div className="modal-body">
-          {error && <div className="alert alert-error">{error}</div>}
-
+        <div className="p-6">
+          {showDeleteConfirm ? (
+            <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/70 px-4 py-6 backdrop-blur-xl">
+              <div
+                className="w-full max-w-md rounded-3xl border border-rose-500/30 bg-slate-900/80 p-6 shadow-2xl backdrop-blur"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="text-lg font-semibold text-white">
+                  Delete this task?
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-300">
+                  This action cannot be undone. The task will be removed from
+                  your list.
+                </p>
+                <div className="mt-6 flex justify-end gap-3">
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowDeleteConfirm(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button variant="danger" onClick={handleDelete}>
+                    Confirm delete
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : null}
           {mode === "view" ? (
-            <>
-              <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
-                <span className={`badge ${getStatusBadgeClass(task.status)}`}>
+            <div className="space-y-6">
+              <div className="flex flex-wrap gap-2">
+                <span
+                  className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusBadgeClass(task.status)}`}
+                >
                   {task.status}
                 </span>
-                <span className={`badge ${getPriorityBadgeClass(task.priority)}`}>
+                <span
+                  className={`rounded-full px-3 py-1 text-sm font-medium ${getPriorityBadgeClass(task.priority)}`}
+                >
                   {task.priority}
                 </span>
                 {overdue && (
-                  <span className="badge badge-critical">Overdue</span>
+                  <span className="rounded-full border border-rose-500/30 bg-rose-500/15 px-3 py-1 text-sm font-medium text-rose-200">
+                    Overdue
+                  </span>
                 )}
               </div>
 
-              {task.description && (
-                <p style={{ color: "var(--color-text-muted)", marginBottom: "1.5rem" }}>
-                  {task.description}
+              <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+                  Description
                 </p>
-              )}
+                <p className="mt-2 text-sm leading-6 text-slate-300/80">
+                  {task.description ||
+                    "No description was added for this task yet."}
+                </p>
+              </div>
 
-              <div className="grid-2" style={{ marginBottom: "1rem" }}>
-                <div>
-                  <p className="form-label">Start Date</p>
-                  <p>{formatDateTime(task.startDate)}</p>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+                    Start date
+                  </p>
+                  <p className="mt-2 text-sm text-slate-200">
+                    {formatDateTime(task.startDate)}
+                  </p>
                 </div>
-                <div>
-                  <p className="form-label">Due Date</p>
-                  <p style={{ color: overdue ? "var(--color-danger)" : undefined }}>
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+                    Due date
+                  </p>
+                  <p
+                    className={`mt-2 text-sm ${overdue ? "text-rose-300" : "text-slate-200"}`}
+                  >
                     {formatDateTime(task.dueDate)}
                   </p>
                 </div>
-                <div>
-                  <p className="form-label">Estimated Hours</p>
-                  <p>{task.estimatedHours}h</p>
-                </div>
-                <div>
-                  <p className="form-label">Completed At</p>
-                  <p>{formatDateTime(task.completedAt)}</p>
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4 md:col-span-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+                    Estimated hours
+                  </p>
+                  <p className="mt-2 text-sm text-slate-200">
+                    {task.estimatedHours}h
+                  </p>
                 </div>
               </div>
 
-              {task.tags.length > 0 && (
-                <div>
-                  <p className="form-label">Tags</p>
-                  <div className="task-card-tags">
+              {task.tags.length > 0 ? (
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+                    Tags
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
                     {task.tags.map((tag) => (
-                      <span key={tag} className="task-tag">
+                      <span
+                        key={tag}
+                        className="rounded-full border border-indigo-500/30 bg-indigo-500/15 px-3 py-1 text-sm text-indigo-200"
+                      >
                         #{tag}
                       </span>
                     ))}
                   </div>
                 </div>
-              )}
+              ) : null}
 
-              <div className="modal-footer" style={{ padding: "1.5rem 0 0", border: "none" }}>
-                <button className="btn btn-danger" onClick={handleDelete}>
+              <div className="flex flex-wrap items-center justify-end gap-3 border-t border-slate-800 pt-4">
+                <Button
+                  variant="danger"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
                   Delete
-                </button>
-                <button className="btn btn-primary" onClick={() => setMode("edit")}>
-                  Edit
-                </button>
+                </Button>
+                <Button onClick={() => setMode("edit")}>Edit</Button>
               </div>
-            </>
+            </div>
           ) : (
             <TaskForm
               task={task}

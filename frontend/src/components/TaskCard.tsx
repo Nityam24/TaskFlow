@@ -26,9 +26,6 @@ export function TaskCard({ task, onClick, isOptimistic }: TaskCardProps) {
     >
       <div className="flex items-start justify-between gap-3">
         <h3 className="text-base font-semibold text-white">{task.title}</h3>
-        <span className={`badge ${getPriorityBadgeClass(task.priority)}`}>
-          {task.priority}
-        </span>
       </div>
 
       {task.description ? (
@@ -37,17 +34,22 @@ export function TaskCard({ task, onClick, isOptimistic }: TaskCardProps) {
         </p>
       ) : null}
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
+      {task.dueDate ? (
+        <div className="mt-4 text-sm">
+          <span className={`${overdue ? "text-rose-300" : "text-slate-400"}`}>
+            Due {formatDate(task.dueDate)}
+          </span>
+        </div>
+      ) : null}
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <span className={`badge ${getPriorityBadgeClass(task.priority)}`}>
+          {task.priority}
+        </span>
         <span className={`badge ${getStatusBadgeClass(task.status)}`}>
           {task.status}
         </span>
-        {task.dueDate ? (
-          <span
-            className={`text-sm ${overdue ? "text-rose-300" : "text-slate-400"}`}
-          >
-            Due {formatDate(task.dueDate)}
-          </span>
-        ) : null}
+        {overdue ? <span className="badge badge-critical">Overdue</span> : null}
       </div>
 
       {task.tags.length > 0 ? (

@@ -5,6 +5,12 @@ interface PrivateRouteProps {
   redirectTo?: string;
 }
 
+export function NotFoundRoute() {
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+
+  return <Navigate to={isAuthenticated ? "/tasks" : "/"} replace />;
+}
+
 export function PrivateRoute({ redirectTo = "/login" }: PrivateRouteProps) {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
