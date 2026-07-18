@@ -1,0 +1,43 @@
+import mongoose, { Document, Schema } from "mongoose";
+
+export interface RefreshTokenDocument extends Document {
+  user: mongoose.Types.ObjectId;
+  tokenHash: string;
+  expiresAt: Date;
+  revoked: boolean;
+  createdAt: Date;
+}
+
+const refreshTokenSchema = new Schema<RefreshTokenDocument>(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+    tokenHash: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    expiresAt: {
+      type: Date,
+      required: true,
+      index: true,
+    },
+    revoked: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+  },
+  { timestamps: { createdAt: true, updatedAt: false } }
+);
+
+refreshTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+export const RefreshToken = mongoose.model<RefreshTokenDocument>(
+  "RefreshToken",
+  refreshTokenSchema
+);
