@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { useAppDispatch } from "../store/hooks";
 import { setCredentials } from "../store";
 import { authApi } from "../api";
@@ -23,6 +24,12 @@ export function RegisterPage() {
   } = useForm<RegisterCredentials & { confirmPassword: string }>({
     mode: "onBlur",
     reValidateMode: "onChange",
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   const onSubmit = async (
@@ -35,10 +42,13 @@ export function RegisterPage() {
       const response = await authApi.register(registerData);
       if (response.data) {
         dispatch(setCredentials(response.data));
+        toast.success("Account created successfully");
         navigate("/tasks");
       }
     } catch (err) {
-      setError(getErrorMessage(err));
+      const message = getErrorMessage(err);
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -76,6 +86,7 @@ export function RegisterPage() {
                 value: 2,
                 message: "Name must be at least 2 characters",
               },
+              setValueAs: (value) => value?.trim(),
             })}
           />
           {errors.name ? (
@@ -97,6 +108,7 @@ export function RegisterPage() {
                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                 message: "Invalid email format",
               },
+              setValueAs: (value) => value?.trim(),
             })}
           />
           {errors.email ? (
@@ -118,6 +130,7 @@ export function RegisterPage() {
                 value: 6,
                 message: "Password must be at least 6 characters",
               },
+              setValueAs: (value) => value?.trim(),
             })}
           />
           {errors.password ? (
@@ -136,7 +149,8 @@ export function RegisterPage() {
             {...register("confirmPassword", {
               required: "Please confirm your password",
               validate: (val, formValues) =>
-                val === formValues.password || "Passwords do not match",
+                (val || "").trim() === (formValues.password || "").trim() ||
+                "Passwords do not match",
             })}
           />
           {errors.confirmPassword ? (

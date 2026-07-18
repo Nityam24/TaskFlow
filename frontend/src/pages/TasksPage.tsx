@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import { TaskCard } from "../components/TaskCard";
 import { TaskModal } from "../components/TaskModal";
 import { TaskForm } from "../components/TaskForm";
@@ -47,25 +48,35 @@ export function TasksPage() {
     setCreateError("");
     try {
       await createTask.mutateAsync(formData);
+      toast.success("Task created successfully");
       setShowCreateModal(false);
     } catch (err) {
-      setCreateError(getErrorMessage(err));
+      const message = getErrorMessage(err);
+      setCreateError(message);
+      toast.error(message);
     }
   };
 
   return (
     <div className="page-section container space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="page-title">My tasks</h1>
-          <p className="page-subtitle">
-            Stay focused with a structured view of your work.
-          </p>
-          {isFetching && !isLoading ? (
-            <p className="mt-2 text-sm text-slate-400">Updating…</p>
-          ) : null}
+      <div className="rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="max-w-2xl">
+            <p className="mb-2 text-sm font-medium uppercase tracking-[0.24em] text-indigo-300">
+              Task workspace
+            </p>
+            <h1 className="page-title">My tasks</h1>
+            <p className="page-subtitle mt-2 text-slate-400">
+              Plan your priorities, track progress, and keep your work moving.
+            </p>
+            {isFetching && !isLoading ? (
+              <p className="mt-3 inline-flex items-center rounded-full border border-slate-800 bg-slate-950/70 px-3 py-1 text-sm text-slate-400">
+                Updating tasks…
+              </p>
+            ) : null}
+          </div>
+          <Button onClick={() => setShowCreateModal(true)}>+ New task</Button>
         </div>
-        <Button onClick={() => setShowCreateModal(true)}>+ New task</Button>
       </div>
 
       <Card className="p-4">
@@ -115,8 +126,15 @@ export function TasksPage() {
       </Card>
 
       {isLoading ? (
-        <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-indigo-400" />
+        <div
+          className="flex justify-center py-12"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-center gap-3 rounded-full border border-slate-800 bg-slate-900/70 px-4 py-2 text-sm text-slate-300">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-700 border-t-indigo-400" />
+            Loading tasks...
+          </div>
         </div>
       ) : error ? (
         <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">

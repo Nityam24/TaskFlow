@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { useAppDispatch } from "../store/hooks";
 import { setCredentials } from "../store";
 import { authApi } from "../api";
@@ -23,6 +24,10 @@ export function LoginPage() {
   } = useForm<LoginCredentials>({
     mode: "onBlur",
     reValidateMode: "onChange",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
   const onSubmit = async (data: LoginCredentials) => {
@@ -32,10 +37,13 @@ export function LoginPage() {
       const response = await authApi.login(data);
       if (response.data) {
         dispatch(setCredentials(response.data));
+        toast.success("Signed in successfully");
         navigate("/tasks");
       }
     } catch (err) {
-      setError(getErrorMessage(err));
+      const message = getErrorMessage(err);
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -74,6 +82,7 @@ export function LoginPage() {
                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                 message: "Invalid email format",
               },
+              setValueAs: (value) => value?.trim(),
             })}
           />
           {errors.email ? (
@@ -89,7 +98,10 @@ export function LoginPage() {
             id="password"
             type="password"
             error={Boolean(errors.password)}
-            {...register("password", { required: "Password is required" })}
+            {...register("password", {
+              required: "Password is required",
+              setValueAs: (value) => value?.trim(),
+            })}
           />
           {errors.password ? (
             <p className="helper-text">{errors.password.message}</p>
