@@ -24,11 +24,6 @@ export const logger = winston.createLogger({
   ],
 });
 
-if (config.isProduction && process.env.VERCEL !== "1") {
-  logger.add(
-    new winston.transports.File({ filename: "logs/error.log", level: "error" })
-  );
-  logger.add(new winston.transports.File({ filename: "logs/combined.log" }));
-}
+// File transports omitted — Vercel captures console output natively
 
 export default logger;
