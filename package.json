@@ -1,10 +1,5 @@
 {
   "name": "task-management-system",
   "private": true,
-  "scripts": {
-    "build": "cd frontend && npm install && npm run build && mkdir -p ../dist && cp -r dist/. ../dist/"
-  },
-  "engines": {
-    "node": "24.x"
-  }
+  "scripts": {}
 }
