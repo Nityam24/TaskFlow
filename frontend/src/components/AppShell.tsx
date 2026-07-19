@@ -105,10 +105,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   >
                     <div className="flex min-w-0 items-center gap-2">
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-500/20 text-sm font-semibold text-indigo-200">
-                        {user?.name?.charAt(0).toUpperCase()}
+                        {user?.name ? user.name.charAt(0).toUpperCase() : "?"}
                       </span>
                       <span className="truncate text-sm font-medium text-slate-200">
-                        {user?.name}
+                        {user?.name || "User"}
                       </span>
                     </div>
                     <span className="text-sm text-slate-400">▾</span>

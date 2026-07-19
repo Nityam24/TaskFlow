@@ -5,9 +5,9 @@ dotenv.config();
 const requiredEnvVars = ["MONGODB_URI", "JWT_SECRET"] as const;
 const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
 
-if (missingEnvVars.length > 0 && process.env.NODE_ENV === "production") {
-  throw new Error(
-    `Missing required environment variable(s): ${missingEnvVars.join(", ")}`,
+if (missingEnvVars.length > 0) {
+  console.warn(
+    `Missing environment variable(s): ${missingEnvVars.join(", ")}`,
   );
 }
 

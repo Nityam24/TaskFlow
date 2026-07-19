@@ -21,15 +21,19 @@ export const sanitizePayload = <T>(
 ): T => {
   const stripSet = new Set([...fieldsToStrip, ...DEFAULT_FIELDS_TO_STRIP]);
 
-  if (Array.isArray(data)) {
-    return data.map((item) => sanitizePayload(item, fieldsToStrip)) as T;
+  const raw = data && typeof (data as Record<string, unknown>)?.toJSON === "function"
+    ? (data as Record<string, unknown>).toJSON()
+    : data;
+
+  if (Array.isArray(raw)) {
+    return raw.map((item) => sanitizePayload(item, fieldsToStrip)) as T;
   }
 
-  if (data && typeof data === "object") {
+  if (raw && typeof raw === "object") {
     const result: Record<string, SerializableValue> = {};
 
     for (const [key, value] of Object.entries(
-      data as Record<string, unknown>,
+      raw as Record<string, unknown>,
     )) {
       if (stripSet.has(key)) {
         continue;
@@ -44,7 +48,7 @@ export const sanitizePayload = <T>(
     return result as T;
   }
 
-  return data;
+  return raw as T;
 };
 
 export const sanitizeTaskPayload = <T>(data: T): T =>
