@@ -24,7 +24,7 @@ export const logger = winston.createLogger({
   ],
 });
 
-if (config.isProduction) {
+if (config.isProduction && process.env.VERCEL !== "1") {
   logger.add(
     new winston.transports.File({ filename: "logs/error.log", level: "error" })
   );
