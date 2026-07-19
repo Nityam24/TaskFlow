@@ -21,9 +21,12 @@ export const sanitizePayload = <T>(
 ): T => {
   const stripSet = new Set([...fieldsToStrip, ...DEFAULT_FIELDS_TO_STRIP]);
 
-  const raw = data && typeof (data as Record<string, unknown>)?.toJSON === "function"
-    ? (data as Record<string, unknown>).toJSON()
-    : data;
+  const raw =
+    typeof data === "object" &&
+    data !== null &&
+    typeof (data as Record<string, unknown>).toJSON === "function"
+      ? (data as { toJSON(): unknown }).toJSON()
+      : data;
 
   if (Array.isArray(raw)) {
     return raw.map((item) => sanitizePayload(item, fieldsToStrip)) as T;
