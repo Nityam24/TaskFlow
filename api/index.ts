@@ -1,6 +1,6 @@
-import { createApp } from "../src/app";
-import { connectDatabase } from "../src/config/database";
-import logger from "../src/utils/logger";
+import { createApp } from "../backend/src/app";
+import { connectDatabase } from "../backend/src/config/database";
+import logger from "../backend/src/utils/logger";
 
 let cachedApp: ReturnType<typeof createApp> | null = null;
 

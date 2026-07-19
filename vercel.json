@@ -1,13 +1,13 @@
 {
-  "installCommand": "cd frontend && npm install --include=dev",
+  "installCommand": "npm install && cd frontend && npm install --include=dev",
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/dist",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "backend/api/index" },
+    { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "functions": {
-    "backend/api/index.ts": {
+    "api/index.ts": {
       "maxDuration": 10,
       "memory": 512
     }
