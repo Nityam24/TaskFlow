@@ -1,6 +1,5 @@
 import { createApp } from "../src/app";
 import { connectDatabase } from "../src/config/database";
-import { config } from "../src/config";
 import logger from "../src/utils/logger";
 
 let cachedApp: ReturnType<typeof createApp> | null = null;
