@@ -1,35 +1,116 @@
 # TaskFlow - Task Management System
 
-A full-stack task management application with JWT authentication, built with Node.js/Express (TypeScript) backend and React (TypeScript) frontend.
+TaskFlow is a full-stack task management app with user authentication, task CRUD, pagination, search, and dashboard-style task insights. The project is built with a TypeScript Node.js/Express backend and a React + Vite frontend.
 
-## Features
+## 1. Brief Overview
+
+TaskFlow helps users organize daily work with a clean, modern interface. Users can register, log in, create tasks, update them, filter by status or priority, search content, and review task statistics. The app also supports soft delete so removed tasks are hidden from the main list without being permanently destroyed.
+
+## 2. Features
+
+### Authentication
+
+- Register, login, logout, and protected routes
+- JWT-based session handling with refresh-cookie support
+- User-specific task access
+
+### Task Management
+
+- Create, view, edit, and delete tasks
+- Status and priority labels
+- Due dates, estimated hours, and tags
+- Pagination, search, sorting, and filtering
+- Soft delete for safer task removal
+- Task statistics dashboard
+
+### UI/UX
+
+- Modern dark theme
+- Responsive task cards and modal-based task details
+- Optimistic UI updates and smooth form interactions
+
+## 3. Vercel Deployment Link
+
+Demo link placeholder:
+
+- https://your-vercel-app.vercel.app
+
+## 4. Run with Docker
+
+From the project root:
+
+```bash
+docker compose up --build
+```
+
+This starts:
+
+- MongoDB on port 27017
+- Backend on port 5000
+- Frontend on port 5173
+
+To stop it:
+
+```bash
+docker compose down
+```
+
+## 5. Run Locally
 
 ### Backend
-- MVC architecture with service layer
-- JWT authentication (register, login, logout with token blacklisting)
-- Task CRUD with user-scoped authorization
-- Mongoose with optimized indexes and lean queries
-- Yup validation, Winston logging
-- Helmet, CORS, compression middleware
-- Class-based error handling
-- Pagination, filtering, search, and task statistics
+
+```bash
+cd backend
+npm install
+cp .env.example .env
+# update .env with your MongoDB URI and JWT secret
+npm run dev
+```
+
+Backend runs at http://localhost:5000
 
 ### Frontend
-- React 18 + TypeScript + Vite
-- Redux Toolkit for auth & filter state
-- React Query for API caching & optimistic updates
-- React Hook Form for forms
-- React Router with private/public routes
-- Landing page, task listing, detail modal, profile with stats
 
-## Prerequisites
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-- Node.js 18+
-- MongoDB (local or Atlas)
+Frontend runs at http://localhost:5173
+
+## 6. Demo Video
+
+Demo video placeholder:
+
+- https://your-video-link.com/demo
+
+## Environment Variables
+
+### Backend (.env)
+
+| Variable                   | Description                  |
+| -------------------------- | ---------------------------- |
+| `NODE_ENV`                 | Runtime environment          |
+| `PORT`                     | Backend port                 |
+| `MONGODB_URI`              | MongoDB connection string    |
+| `JWT_SECRET`               | JWT signing secret           |
+| `JWT_ACCESS_EXPIRES_IN`    | Access token expiry          |
+| `JWT_REFRESH_EXPIRES_DAYS` | Refresh token expiry in days |
+| `CLIENT_URL`               | Frontend origin for CORS     |
+| `LOG_LEVEL`                | Logging level                |
+
+### Frontend
+
+Use Vite environment variables if needed:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
 
 ## Project Structure
 
-```
+```text
 Task-Management-System/
 ├── backend/
 │   └── src/
@@ -43,8 +124,7 @@ Task-Management-System/
 │       ├── types/
 │       ├── utils/
 │       ├── validators/
-│       ├── app.ts
-│       └── server.ts
+│       └── app.ts
 ├── frontend/
 │   └── src/
 │       ├── api/
@@ -57,189 +137,63 @@ Task-Management-System/
 └── README.md
 ```
 
-## Setup
+## Vercel Hosting Setup
 
-### 1. Clone the repository
+The frontend can be deployed on Vercel directly, and the backend can be deployed as a Vercel serverless API.
 
-```bash
-git clone <your-repo-url>
-cd Task-Management-System
-```
+### Frontend deployment on Vercel
 
-### 2. Backend Setup
+1. Push the project to GitHub.
+2. Open Vercel and import the repository.
+3. Set the root directory to `frontend`.
+4. Vercel will detect Vite automatically.
+5. Add environment variable:
+   - `VITE_API_URL=https://your-backend-vercel-url/api`
+6. Deploy.
 
-```bash
-cd backend
-npm install
-cp .env.example .env
-# Edit .env with your MongoDB URI and JWT secret
-npm run dev
-```
+### Backend deployment on Vercel
 
-Backend runs at `http://localhost:5000`
+1. Push the project to GitHub.
+2. Open Vercel and import the repository.
+3. Set the root directory to `backend`.
+4. Add environment variables:
+   - `NODE_ENV=production`
+   - `MONGODB_URI=your-mongodb-connection-string`
+   - `JWT_SECRET=your-secret`
+   - `JWT_ACCESS_EXPIRES_IN=15m`
+   - `JWT_REFRESH_EXPIRES_DAYS=5`
+   - `CLIENT_URL=https://your-frontend-vercel-url`
+5. Deploy.
 
-### 3. Frontend Setup
+### Notes
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+- The backend entrypoint is now compatible with Vercel serverless deployment.
+- If your MongoDB is not publicly accessible, use a hosted Atlas instance.
 
-Frontend runs at `http://localhost:5173`
+## API Overview
 
-## Environment Variables
-
-### Backend (.env)
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `NODE_ENV` | Environment | development |
-| `PORT` | Server port | 5000 |
-| `MONGODB_URI` | MongoDB connection string | mongodb://localhost:27017/task-management |
-| `JWT_SECRET` | JWT signing secret | (required) |
-| `JWT_EXPIRES_IN` | Token expiration | 7d |
-| `CLIENT_URL` | Frontend URL for CORS | http://localhost:5173 |
-| `LOG_LEVEL` | Winston log level | info |
-
-### Frontend (.env - optional)
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `VITE_API_URL` | API base URL | /api (proxied to backend) |
-
-## API Documentation
-
-Base URL: `http://localhost:5000/api`
+Base URL: http://localhost:5000/api
 
 ### Authentication
 
-#### POST /auth/register
-Create a new user account.
+- POST /auth/register
+- POST /auth/login
+- POST /auth/logout
+- GET /auth/profile
 
-**Body:**
-```json
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123"
-}
-```
+### Tasks
 
-**Response (201):**
-```json
-{
-  "success": true,
-  "message": "Registration successful",
-  "data": {
-    "user": { "_id": "...", "name": "John Doe", "email": "john@example.com" },
-    "token": "eyJhbG..."
-  }
-}
-```
-
-#### POST /auth/login
-Authenticate and receive JWT token.
-
-**Body:**
-```json
-{
-  "email": "john@example.com",
-  "password": "password123"
-}
-```
-
-#### POST /auth/logout
-Invalidate current token. Requires authentication.
-
-**Headers:** `Authorization: Bearer <token>`
-
-#### GET /auth/profile
-Get current user profile. Requires authentication.
-
----
-
-### Tasks (All require authentication)
-
-**Headers:** `Authorization: Bearer <token>`
-
-#### POST /tasks
-Create a new task.
-
-**Body:**
-```json
-{
-  "title": "Complete project",
-  "description": "Finish the assignment",
-  "status": "Todo",
-  "priority": "High",
-  "dueDate": "2026-07-25",
-  "estimatedHours": 8,
-  "tags": ["work", "urgent"]
-}
-```
-
-#### GET /tasks
-Get paginated tasks for the logged-in user.
-
-**Query Parameters:**
-| Param | Type | Description |
-|-------|------|-------------|
-| page | number | Page number (default: 1) |
-| limit | number | Items per page (default: 10, max: 100) |
-| status | string | Filter by status |
-| priority | string | Filter by priority |
-| search | string | Full-text search |
-| sortBy | string | createdAt, dueDate, priority, title, status |
-| sortOrder | string | asc or desc |
-
-#### GET /tasks/stats
-Get task statistics for the logged-in user.
-
-#### GET /tasks/:id
-Get a single task by ID.
-
-#### PUT /tasks/:id
-Update a task (only own tasks).
-
-#### DELETE /tasks/:id
-Delete a task (only own tasks).
-
----
-
-### Error Responses
-
-```json
-{
-  "success": false,
-  "message": "Validation failed",
-  "errors": {
-    "email": "Invalid email format"
-  }
-}
-```
-
-**Status Codes:** 200, 201, 400, 401, 404, 409, 500
-
-## Scripts
-
-### Backend
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Compile TypeScript
-- `npm start` - Run production build
-- `npm run lint` - Type check
-
-### Frontend
-- `npm run dev` - Start Vite dev server
-- `npm run build` - Production build
-- `npm run preview` - Preview production build
+- GET /tasks
+- POST /tasks
+- GET /tasks/:id
+- PUT /tasks/:id
+- DELETE /tasks/:id
+- GET /tasks/stats
 
 ## Tech Stack
 
-| Layer | Technologies |
-|-------|-------------|
-| Backend | Node.js, Express, TypeScript, MongoDB, Mongoose, JWT, Yup, Winston, Helmet, CORS, Compression |
-| Frontend | React, TypeScript, Vite, Redux Toolkit, React Query, React Hook Form, React Router |
+- Backend: Node.js, Express, TypeScript, MongoDB, Mongoose, JWT, Yup, Winston, Helmet, CORS
+- Frontend: React, TypeScript, Vite, Redux Toolkit, React Query, React Hook Form, React Router
 
 ## License
 

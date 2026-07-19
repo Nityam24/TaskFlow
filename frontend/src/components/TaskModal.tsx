@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import type { Task, CreateTaskInput } from "../types";
+import type { CreateTaskInput, TaskModalProps } from "../types";
 import {
   getStatusBadgeClass,
   getPriorityBadgeClass,
@@ -12,27 +12,37 @@ import { useUpdateTask, useDeleteTask } from "../hooks/useTasks";
 import { getErrorMessage } from "../api/client";
 import { Button } from "./ui/Button";
 
-interface TaskModalProps {
-  task: Task | null;
-  onClose: () => void;
-  mode?: "view" | "edit";
-}
-
 export function TaskModal({
   task,
   onClose,
+  onTaskUpdated,
   mode: initialMode = "view",
 }: TaskModalProps) {
   const [mode, setMode] = useState<"view" | "edit">(initialMode);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [currentTask, setCurrentTask] = useState(task);
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
 
-  if (!task) return null;
+  useEffect(() => {
+    setCurrentTask(task);
+  }, [task]);
+
+  if (!currentTask) return null;
 
   const handleUpdate = async (data: CreateTaskInput) => {
     try {
-      await updateTask.mutateAsync({ id: task._id, data });
+      const response = await updateTask.mutateAsync({
+        id: currentTask._id,
+        data,
+      });
+      const updatedTask = response?.data?.task;
+
+      if (updatedTask) {
+        setCurrentTask(updatedTask);
+        onTaskUpdated?.(updatedTask);
+      }
+
       toast.success("Task updated successfully");
       setMode("view");
     } catch (err) {
@@ -43,7 +53,7 @@ export function TaskModal({
 
   const handleDelete = async () => {
     try {
-      await deleteTask.mutateAsync(task._id);
+      await deleteTask.mutateAsync(currentTask._id);
       toast.success("Task deleted successfully");
       onClose();
     } catch (err) {
@@ -54,7 +64,11 @@ export function TaskModal({
     }
   };
 
-  const overdue = isOverdue(task.dueDate, task.status, task.startDate);
+  const overdue = isOverdue(
+    currentTask.dueDate,
+    currentTask.status,
+    currentTask.startDate,
+  );
 
   return (
     <div
@@ -79,7 +93,7 @@ export function TaskModal({
               Task details
             </p>
             <h2 className="mt-1 text-xl font-semibold text-white">
-              {mode === "edit" ? "Edit task" : task.title}
+              {mode === "edit" ? "Edit task" : currentTask.title}
             </h2>
           </div>
           <button
@@ -123,14 +137,14 @@ export function TaskModal({
             <div className="space-y-6">
               <div className="flex flex-wrap gap-2">
                 <span
-                  className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusBadgeClass(task.status)}`}
+                  className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusBadgeClass(currentTask.status)}`}
                 >
-                  {task.status}
+                  {currentTask.status}
                 </span>
                 <span
-                  className={`rounded-full px-3 py-1 text-sm font-medium ${getPriorityBadgeClass(task.priority)}`}
+                  className={`rounded-full px-3 py-1 text-sm font-medium ${getPriorityBadgeClass(currentTask.priority)}`}
                 >
-                  {task.priority}
+                  {currentTask.priority}
                 </span>
                 {overdue && (
                   <span className="rounded-full border border-rose-500/30 bg-rose-500/15 px-3 py-1 text-sm font-medium text-rose-200">
@@ -144,7 +158,7 @@ export function TaskModal({
                   Description
                 </p>
                 <p className="mt-2 text-sm leading-6 text-slate-300/80">
-                  {task.description ||
+                  {currentTask.description ||
                     "No description was added for this task yet."}
                 </p>
               </div>
@@ -155,7 +169,7 @@ export function TaskModal({
                     Start date
                   </p>
                   <p className="mt-2 text-sm text-slate-200">
-                    {formatDateTime(task.startDate)}
+                    {formatDateTime(currentTask.startDate)}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
@@ -165,7 +179,7 @@ export function TaskModal({
                   <p
                     className={`mt-2 text-sm ${overdue ? "text-rose-300" : "text-slate-200"}`}
                   >
-                    {formatDateTime(task.dueDate)}
+                    {formatDateTime(currentTask.dueDate)}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4 md:col-span-2">
@@ -173,18 +187,18 @@ export function TaskModal({
                     Estimated hours
                   </p>
                   <p className="mt-2 text-sm text-slate-200">
-                    {task.estimatedHours}h
+                    {currentTask.estimatedHours}h
                   </p>
                 </div>
               </div>
 
-              {task.tags.length > 0 ? (
+              {currentTask.tags.length > 0 ? (
                 <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
                     Tags
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {task.tags.map((tag) => (
+                    {currentTask.tags.map((tag) => (
                       <span
                         key={tag}
                         className="rounded-full border border-indigo-500/30 bg-indigo-500/15 px-3 py-1 text-sm text-indigo-200"
@@ -208,7 +222,7 @@ export function TaskModal({
             </div>
           ) : (
             <TaskForm
-              task={task}
+              task={currentTask}
               onSubmit={handleUpdate}
               onCancel={() => setMode("view")}
               isLoading={updateTask.isPending}

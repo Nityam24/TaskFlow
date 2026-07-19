@@ -19,9 +19,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const handleLogout = async () => {
     try {
       await authApi.logout();
-    } finally {
+      setShowLogoutConfirm(false);
+      setIsMenuOpen(false);
       dispatch(clearCredentials());
-      navigate("/");
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed", error);
     }
   };
 

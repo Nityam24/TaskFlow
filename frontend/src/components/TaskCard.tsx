@@ -1,4 +1,4 @@
-import type { Task } from "../types";
+import type { TaskCardProps } from "../types";
 import {
   getStatusBadgeClass,
   getPriorityBadgeClass,
@@ -6,12 +6,6 @@ import {
   isOverdue,
 } from "../utils/taskHelpers";
 import { Card } from "./ui/Card";
-
-interface TaskCardProps {
-  task: Task;
-  onClick: (task: Task) => void;
-  isOptimistic?: boolean;
-}
 
 export function TaskCard({ task, onClick, isOptimistic }: TaskCardProps) {
   const overdue = isOverdue(task.dueDate, task.status);

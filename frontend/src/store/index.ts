@@ -23,7 +23,7 @@ const initialAuthState: AuthState = {
 const initialFilterState: TaskFilterState = {
   filters: {
     page: 1,
-    limit: 10,
+    limit: 9,
     sortBy: "createdAt",
     sortOrder: "desc",
   },

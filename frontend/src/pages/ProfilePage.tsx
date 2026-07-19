@@ -83,7 +83,9 @@ export function ProfilePage() {
               <div className="text-3xl font-semibold text-emerald-300">
                 {stats.byStatus[TaskStatus.COMPLETED]}
               </div>
-              <div className="mt-2 text-sm text-slate-400">Completed</div>
+              <div className="mt-2 text-sm text-slate-400">
+                Completed overall
+              </div>
             </Card>
             <Card className="p-5">
               <div className="text-3xl font-semibold text-rose-300">

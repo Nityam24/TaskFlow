@@ -3,6 +3,7 @@ import { authService } from "../services/auth.service";
 import { ApiResponse } from "../errors/responseHandler";
 import { UnauthorizedError } from "../errors/AppError";
 import { blacklistToken } from "../middlewares/auth.middleware";
+import { sanitizePayload } from "../utils/serialize";
 
 const setRefreshCookie = (res: Response, refreshToken: string): void => {
   res.cookie("refreshToken", refreshToken, {
@@ -26,7 +27,7 @@ const register = async (
 
     ApiResponse.created(
       res,
-      { user, accessToken, refreshToken },
+      sanitizePayload({ user, accessToken, refreshToken }),
       "Registration successful",
     );
   } catch (error) {
@@ -48,7 +49,7 @@ const login = async (
     ApiResponse.success({
       res,
       message: "Login successful",
-      data: { user, accessToken, refreshToken },
+      data: sanitizePayload({ user, accessToken, refreshToken }),
     });
   } catch (error) {
     next(error);
@@ -112,7 +113,7 @@ const getProfile = async (
 ): Promise<void> => {
   try {
     const user = await authService.getProfile(req.user!.userId);
-    ApiResponse.success({ res, data: { user } });
+    ApiResponse.success({ res, data: { user: sanitizePayload(user) } });
   } catch (error) {
     next(error);
   }

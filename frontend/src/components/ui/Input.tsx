@@ -1,10 +1,7 @@
 import { forwardRef } from "react";
+import type { InputProps } from "../../types";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  error?: boolean;
-}
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, error, ...props }, ref) => {

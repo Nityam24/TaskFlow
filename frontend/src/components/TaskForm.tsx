@@ -3,17 +3,13 @@ import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import type { Task, CreateTaskInput } from "../types";
+import type { TaskFormData, TaskFormProps } from "../types";
 import {
   TaskStatus as StatusEnum,
   TaskPriority as PriorityEnum,
 } from "../types";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
-
-interface TaskFormData extends CreateTaskInput {
-  tagsInput?: string;
-}
 
 const statusOptions = Object.values(StatusEnum).map((value) => ({
   value,
@@ -72,13 +68,6 @@ const selectStyles = {
     backgroundColor: "rgba(15, 23, 42, 0.95)",
   }),
 };
-
-interface TaskFormProps {
-  task?: Task | null;
-  onSubmit: (data: CreateTaskInput) => void;
-  onCancel: () => void;
-  isLoading?: boolean;
-}
 
 const formatDateValue = (date: Date | null) => {
   if (!date) return "";
@@ -191,7 +180,7 @@ export function TaskForm({
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
       <div>
         <label className="label-text" htmlFor="title">
-          Title *
+          Title <span className="text-rose-400">*</span>
         </label>
         <Input
           id="title"
@@ -209,7 +198,7 @@ export function TaskForm({
         </label>
         <textarea
           id="description"
-          className="input-field min-h-[112px]"
+          className="w-full min-h-[112px] rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2.5 text-sm text-slate-100 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20"
           rows={4}
           {...register("description")}
         />

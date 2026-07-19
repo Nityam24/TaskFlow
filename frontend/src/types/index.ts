@@ -1,3 +1,10 @@
+import type {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  InputHTMLAttributes,
+  ReactNode,
+} from "react";
+
 export enum TaskStatus {
   TODO = "Todo",
   IN_PROGRESS = "In Progress",
@@ -17,8 +24,8 @@ export interface User {
   _id: string;
   name: string;
   email: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Task {
@@ -29,12 +36,65 @@ export interface Task {
   priority: TaskPriority;
   startDate?: string;
   dueDate?: string;
-  completedAt?: string;
   estimatedHours: number;
   tags: string[];
   user: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AuthShellProps {
+  title: string;
+  subtitle: string;
+  children: ReactNode;
+  footer: ReactNode;
+}
+
+export interface PaginationProps {
+  page: number;
+  totalPages: number;
+  total: number;
+}
+
+export interface PrivateRouteProps {
+  redirectTo?: string;
+}
+
+export interface TaskCardProps {
+  task: Task;
+  onClick: (task: Task) => void;
+  isOptimistic?: boolean;
+}
+
+export interface TaskModalProps {
+  task: Task | null;
+  onClose: () => void;
+  onTaskUpdated?: (task: Task) => void;
+  mode?: "view" | "edit";
+}
+
+export interface TaskFormData extends CreateTaskInput {
+  tagsInput?: string;
+}
+
+export interface TaskFormProps {
+  task?: Task | null;
+  onSubmit: (data: CreateTaskInput) => void;
+  onCancel: () => void;
+  isLoading?: boolean;
+}
+
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "default" | "secondary" | "ghost" | "danger";
+  size?: "default" | "sm";
+}
+
+export interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  children: ReactNode;
+}
+
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  error?: boolean;
 }
 
 export interface PaginationMeta {

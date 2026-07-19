@@ -30,7 +30,7 @@ export interface ITask {
   priority: TaskPriority;
   startDate?: Date;
   dueDate?: Date;
-  completedAt?: Date;
+  completedAt?: Date | null;
   estimatedHours: number;
   tags: string[];
   user: string;

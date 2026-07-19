@@ -1,9 +1,6 @@
+import type { PrivateRouteProps } from "../types";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAppSelector } from "../store/hooks";
-
-interface PrivateRouteProps {
-  redirectTo?: string;
-}
 
 export function NotFoundRoute() {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);

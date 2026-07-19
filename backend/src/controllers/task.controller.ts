@@ -3,6 +3,7 @@ import { taskService } from "../services/task.service";
 import { ApiResponse } from "../errors/responseHandler";
 import { BadRequestError } from "../errors/AppError";
 import { mongoIdSchema } from "../validators";
+import { sanitizeTaskPayload } from "../utils/serialize";
 
 const getTaskId = (req: Request): string => {
   const { id } = req.params;
@@ -16,7 +17,11 @@ const create = async (
 ): Promise<void> => {
   try {
     const task = await taskService.create(req.user!.userId, req.body);
-    ApiResponse.created(res, { task }, "Task created successfully");
+    ApiResponse.created(
+      res,
+      { task: sanitizeTaskPayload(task) },
+      "Task created successfully",
+    );
   } catch (error) {
     next(error);
   }
@@ -33,7 +38,7 @@ const getAll = async (
       req.query as Parameters<typeof taskService.findByUser>[1],
     );
 
-    ApiResponse.paginated(res, tasks, pagination);
+    ApiResponse.paginated(res, sanitizeTaskPayload(tasks), pagination);
   } catch (error) {
     next(error);
   }
@@ -52,7 +57,7 @@ const getById = async (
     }
 
     const task = await taskService.findById(req.user!.userId, taskId);
-    ApiResponse.success({ res, data: { task } });
+    ApiResponse.success({ res, data: { task: sanitizeTaskPayload(task) } });
   } catch (error) {
     next(error);
   }
@@ -74,7 +79,7 @@ const update = async (
     ApiResponse.success({
       res,
       message: "Task updated successfully",
-      data: { task },
+      data: { task: sanitizeTaskPayload(task) },
     });
   } catch (error) {
     next(error);
@@ -100,16 +105,15 @@ const remove = async (
   }
 };
 
-const getStats = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> => {
+const getStats = async (req: Request, res: Response): Promise<void> => {
   try {
     const stats = await taskService.getStats(req.user!.userId);
     ApiResponse.success({ res, data: { stats } });
   } catch (error) {
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong. Please try again!",
+    });
   }
 };
 

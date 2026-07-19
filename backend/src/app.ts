@@ -16,16 +16,28 @@ export const createApp = (): Application => {
   app.use(
     helmet({
       crossOriginResourcePolicy: { policy: "cross-origin" },
-    })
+    }),
   );
+
+  const allowedOrigins = [
+    config.clientUrl,
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+  ];
 
   app.use(
     cors({
-      origin: config.clientUrl,
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+          return;
+        }
+        callback(null, false);
+      },
       credentials: true,
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
-    })
+    }),
   );
 
   app.use(compression());

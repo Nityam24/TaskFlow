@@ -1,10 +1,6 @@
+import type { ButtonProps } from "../../types";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "secondary" | "ghost" | "danger";
-  size?: "default" | "sm";
-}
 
 export function Button({
   className,

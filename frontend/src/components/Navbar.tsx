@@ -13,9 +13,10 @@ export function Navbar() {
   const handleLogout = async () => {
     try {
       await authApi.logout();
-    } finally {
       dispatch(clearCredentials());
-      navigate("/");
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed", error);
     }
   };
 

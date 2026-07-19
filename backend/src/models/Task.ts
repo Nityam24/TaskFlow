@@ -3,6 +3,8 @@ import { ITask, TaskPriority, TaskStatus } from "../types";
 
 export interface TaskDocument extends Omit<ITask, "_id" | "user">, Document {
   user: mongoose.Types.ObjectId;
+  deletedAt?: Date | null;
+  isDeleted: boolean;
 }
 
 const taskSchema = new Schema<TaskDocument>(
@@ -36,6 +38,7 @@ const taskSchema = new Schema<TaskDocument>(
     },
     completedAt: {
       type: Date,
+      default: null,
     },
     estimatedHours: {
       type: Number,
@@ -48,6 +51,14 @@ const taskSchema = new Schema<TaskDocument>(
         trim: true,
       },
     ],
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -63,7 +74,7 @@ const taskSchema = new Schema<TaskDocument>(
         return ret;
       },
     },
-  }
+  },
 );
 
 // Compound indexes for optimized queries
@@ -71,17 +82,20 @@ taskSchema.index({ user: 1, status: 1 });
 taskSchema.index({ user: 1, priority: 1 });
 taskSchema.index({ user: 1, dueDate: 1 });
 taskSchema.index({ user: 1, createdAt: -1 });
-taskSchema.index({ user: 1, title: "text", description: "text" });
 
-// Auto-set completedAt when status changes to Completed
 taskSchema.pre("save", function (next) {
-  if (this.isModified("status")) {
-    if (this.status === TaskStatus.COMPLETED && !this.completedAt) {
-      this.completedAt = new Date();
-    } else if (this.status !== TaskStatus.COMPLETED) {
-      this.completedAt = undefined;
+  const doc = this as mongoose.Document & TaskDocument;
+
+  if (doc.isModified("status")) {
+    if (doc.status === TaskStatus.COMPLETED) {
+      if (!doc.completedAt) {
+        doc.completedAt = new Date();
+      }
+    } else {
+      doc.completedAt = null;
     }
   }
+
   next();
 });
 

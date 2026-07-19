@@ -1,6 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { taskApi } from "../api";
-import type { TaskQueryParams, CreateTaskInput, UpdateTaskInput, Task } from "../types";
+import type {
+  TaskQueryParams,
+  CreateTaskInput,
+  UpdateTaskInput,
+  Task,
+} from "../types";
 import { useAppSelector } from "../store/hooks";
 
 export const taskKeys = {
@@ -42,8 +47,9 @@ export function useCreateTask() {
 
   return useMutation({
     mutationFn: (data: CreateTaskInput) => taskApi.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: taskKeys.all });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: taskKeys.all });
+      await queryClient.invalidateQueries({ queryKey: taskKeys.stats() });
     },
   });
 }
@@ -68,10 +74,10 @@ export function useUpdateTask() {
           return {
             ...old,
             data: old.data.map((task) =>
-              task._id === id ? { ...task, ...data } : task
+              task._id === id ? { ...task, ...data } : task,
             ),
           };
-        }
+        },
       );
 
       return { previousQueries };
@@ -81,8 +87,9 @@ export function useUpdateTask() {
         queryClient.setQueryData(queryKey, data);
       });
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: taskKeys.all });
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: taskKeys.all });
+      await queryClient.invalidateQueries({ queryKey: taskKeys.stats() });
     },
   });
 }
@@ -107,7 +114,7 @@ export function useDeleteTask() {
             ...old,
             data: old.data.filter((task) => task._id !== id),
           };
-        }
+        },
       );
 
       return { previousQueries };
@@ -117,8 +124,9 @@ export function useDeleteTask() {
         queryClient.setQueryData(queryKey, data);
       });
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: taskKeys.all });
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: taskKeys.all });
+      await queryClient.invalidateQueries({ queryKey: taskKeys.stats() });
     },
   });
 }

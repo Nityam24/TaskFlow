@@ -1,12 +1,7 @@
+import type { PaginationProps } from "../types";
 import { useAppDispatch } from "../store/hooks";
 import { setPage } from "../store";
 import "../styles/components/Pagination.css";
-
-interface PaginationProps {
-  page: number;
-  totalPages: number;
-  total: number;
-}
 
 export function Pagination({ page, totalPages, total }: PaginationProps) {
   const dispatch = useAppDispatch();

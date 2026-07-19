@@ -1,11 +1,5 @@
+import type { AuthShellProps } from "../types";
 import { Card } from "./ui/Card";
-
-interface AuthShellProps {
-  title: string;
-  subtitle: string;
-  children: React.ReactNode;
-  footer: React.ReactNode;
-}
 
 export function AuthShell({
   title,

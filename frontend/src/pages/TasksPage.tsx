@@ -271,7 +271,11 @@ export function TasksPage() {
       )}
 
       {selectedTask ? (
-        <TaskModal task={selectedTask} onClose={() => setSelectedTask(null)} />
+        <TaskModal
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onTaskUpdated={setSelectedTask}
+        />
       ) : null}
 
       {showCreateModal ? (
