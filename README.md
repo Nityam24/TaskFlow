@@ -83,7 +83,7 @@ Frontend runs at http://localhost:5173
 
 Demo video placeholder:
 
-- https://your-video-link.com/demo
+- https://drive.google.com/file/d/1MLIJ1OsdORQYEndwRho5L386-zZPYX7H/view?usp=drive_link
 
 ## Environment Variables
 
